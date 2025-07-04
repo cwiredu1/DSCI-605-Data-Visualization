@@ -1,0 +1,136 @@
+---
+title: "***DSCI605_M5_LAB4.BUBBLE AND BOX PLOT***"
+author: "***CHARLES WIREDU***"
+date: "2/8/2022"
+output: pdf_document
+fontsize: 11pt
+mainfont: Calibri Light
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+setwd("~/Desktop/Data science Assignments")
+
+### install packages required for the plots
+##install.packages("ggplot2")
+##install.packages("dplyr")
+##install.packages("viridis")
+
+library(ggplot2)
+library(dplyr)
+library(viridis)
+```
+
+
+```{r}
+######load dataset for bubble graph
+###################USArrests##################################
+data("USArrests")
+df <- USArrests
+names(USArrests)
+
+USArrests_data <- 
+  tibble(State = state.name,
+         Region = state.region) %>%
+  bind_cols(USArrests)
+
+names(USArrests_data)
+
+```
+---
+The data set used is on the arrests in the United States in relation to 50 states. 
+The data set has four variables namely, murder, assault, rape and urban pop. 
+These variables were chosen because of their numeric description that will allow 
+to demonstrate its  relationships.
+---
+```{r}
+##############basic bubble plot######################
+###PLOT1###
+USArrests_data %>% 
+  ggplot(aes(x=Assault,y=Murder, size=Rape)) +
+  geom_point(alpha=0.6)+
+  scale_size_continuous(range = c(1, 8))+
+  labs(x="Assault", y="Murder", size="Rape")
+
+##adding more features1
+USArrests_data %>%
+  arrange(desc(UrbanPop)) %>%
+  ggplot(aes(x=Murder, y=Assault, size=Rape ,fill=Region)) +
+  geom_point(alpha=0.5, shape=21, color="black") +
+  scale_size(range = c(.1, 7), name="Urban Population ") +
+  scale_fill_viridis(discrete=TRUE, guide=FALSE, option="A") +
+  theme(legend.position="bottom")+
+  ylab("Murder") +
+  xlab("Assault") +
+  theme(legend.position = "none")
+
+##Graphs builds  bubble plot for murder and rape, murder and assault,couple with
+##the display of rape, urban pop variable. From the graph there is a positive 
+##relationship between x (Assault)and y (Murder) variable since all the 
+## bubbles skew towards the right
+
+###features 2 with title added
+USArrests_data %>% 
+  ggplot(aes(x=Rape,y=Murder, size=UrbanPop, color=Assault)) + 
+  geom_point(alpha=0.8)+
+  scale_size_continuous(range = c(1, 8))+
+  labs(title="Bubble plot on Rape/Murder in Usa", x="Rape", y="Murder", size="UrbanPop", color="Assault")
+
+```
+---
+The bubble chart above depicts the points recorded on arrest made in United 
+States across 50 states. A bubble horizontal position shows the murder tendencies
+that resulted in arrest whiles a vertical bubble position 
+notes the rape rate that led to arrest in the United States. 
+The size of bubble explains whether states exhibit low or high rate of these 
+offences (murder or rape).The colour used allowed for transparency on the points,
+with the occurrence of overlapping which suggest limitation to the number data 
+points that can be plotted. 
+
+
+
+```{r}
+################ box plot####################
+###using USArrest dataset#####
+boxplot(Rape~UrbanPop,data=USArrests_data,xlab= "UrbanPop",ylab= "Rape",
+        col= "yellow",border= "brown",
+        main= "Boxplot on Murder/Rape in USA")
+
+
+##plot2
+```
+
+
+```{r}
+ggplot(USArrests_data, aes(x=Rape,y=Murder, fill=Region)) + 
+  geom_boxplot()
+
+```
+---
+The graps above shows different box plot, shapes and positions that shows a little bit of spread with the data been used. 
+```{r}
+
+############BAR PLOT########################
+#########using USArrest dataset##########
+### basic bar plot
+##plot1
+ggplot(USArrests_data, aes(x=Region, y=Murder)) +
+  geom_bar(stat="identity")
+##plot2
+ggplot(USArrests_data, aes(x=Region, y=Assault)) +
+  geom_bar(stat="identity")
+##plot3
+ggplot(USArrests_data,aes(x=UrbanPop,
+                     y=Murder,col=Rape,fill=Rape))+geom_col()
+##plot4
+ggplot(USArrests,aes(x=UrbanPop,
+                     y=Murder,
+                     col=Rape,
+                     fill=Assault))+geom_col()+labs(x="Population", y="Murder per 10,000",
+                    title= "Murder with Urban Pop as a function: With Rape & Assault")
+
+```
+

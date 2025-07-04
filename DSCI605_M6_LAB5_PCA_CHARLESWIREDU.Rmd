@@ -1,0 +1,167 @@
+---
+title: "***PRINCIPAL COMPONENT ANALYSIS***"
+author: "***CHARLES WIREDU***"
+date: "**2/20/2022**"
+output: pdf_document
+fontsize: 11pt
+mainfont: Calibri Light
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+setwd("~/Desktop/Data science Assignments")
+
+###install required packages for PCA 
+#install.packages("FactoMineR")
+#install.packages("factoextra")
+library("FactoMineR")
+library("factoextra")
+#install.packages("ggplot2")
+library("ggplot2")
+```
+
+
+```{r}
+##load dataset and subsetting the first column
+library(readr)
+Samples_1 <- read_csv("~/Desktop/Samples-1.csv")
+View(Samples_1)
+
+new_sample1 <- data.frame(Samples_1[,-1], row.names= Samples_1$Sites)
+View(new_sample1)
+
+head(new_sample1[,1:6], 4)
+```
+
+Data Description
+
+The data used for principal component analysis consist of both different types of species and the sites. The dataset has 7 columns and 6 rows.The data set used had no missing values , therefore a perfect choice for principal component analysis. Below is a brief description of the data set using the R statistical software.
+
+```{r}
+summary(new_sample1 )
+```
+
+
+The code below computes principal component analysis on the active individuals and variables.
+The output of the function is a list, including the following components
+
+```{r}
+res.pca <- PCA(new_sample1,scale.unit= TRUE, graph = FALSE)
+print(res.pca)
+```
+
+
+Extracting the eigenvalues/variance of principal components
+The eigenvalues measures the amount of variation retained by each principal components.They are usually large for the first PCs. That is, the first PCs correspond to the directions with maximum amount of variation in the data set.The sum of all the eigenvalues give a total a little above 7.0. The proportion of variation explained by each eigenvalue is given in the second column. For example 3.96 divided by 6.97 equals 56.64% of the variation explained by the first eigenvalue. The cumulative percentages explained is obtained by adding the successive proportions of variation explained to obtain the running total.For example 85.90% is explained by the two eigenvalues together.The function below illustrate this,
+
+```{r}
+eig.val <- get_eigenvalue(res.pca )
+eig.val
+```
+
+---
+The function below reports the scree plot which is an alternative method to determine the number of principal components.This is a plot eigenvalues ordered from largest to the smallest. The number of components is determined at the point,beyond which other eigenvalues are relatively small. Below is an illustration of the scree plot;
+
+```{r}
+fviz_eig(res.pca,addlabels = TRUE,ylim= c(0,60))
+```
+
+The use of the function below in principal component analysis list all the matrices containing all the results for the active variables(coordinates,correlation,squared cosine and contributions)
+
+```{r}
+var<- get_pca_var(res.pca)
+var
+
+```
+
+
+The different components can be assessed as follows:
+```{r}
+##coordinates
+head(var$coord)
+##cor: correlation between variable and dimension
+head(var$cor)
+## cos2; quality on the factor map
+head(var$cos2)
+##contribution to principal components
+head(var$contrib)
+head(var$coord,3)
+
+```
+
+Plotting of variables is demonstrated by the functions below;
+
+```{r}
+plot1<-fviz_pca_var(res.pca,col.var= "blue")
+plot1
+
+plot2<-fviz_pca_var(res.pca,pointsize="cos2", pointshape= 21,repel="True",fill="black")
+plot2
+
+plot3<-fviz_pca_var(res.pca,pointsize="cos2", col.var = "cos2",gradient.cols= c("#00AFBB","#E7B800", "#FC4E07"),
+                    repel= TRUE) 
+plot3
+
+fviz_pca_var(res.pca,pointsize="contrib", col.var = "contrib",gradient.cols= c("#00AFBB","#E7B800", "#FC4E07"),
+             repel= TRUE) 
+
+fviz_pca_var(res.pca,pointsize="coord", col.var = "coord",gradient.cols= c("#00AFBB","#E7B800", "#FC4E07"),
+             repel= TRUE) 
+
+```
+
+The plots above also known as variable correlation plot shows the relationships between all variables.It can be interpreted as positively correlated variables are grouped together whiles negatively correlated variables are positioned on opposite sides of he plot.
+The quality of the variables is measured by the distance between the variables and the origin.
+```{r}
+
+```
+Plotting of individuals- quality and contribution.
+The function below list all the individual component coupled with their plots
+
+```{r}
+ind<- get_pca_ind(res.pca)
+ind
+
+
+head(ind$coord)# coordinates of individuals
+head(ind$cor)# correlation between individuals and dimension
+head(ind$cos2)#quality of individuals
+head(ind$contrib)#contribution of the individuals
+
+graph1<-fviz_pca_ind(res.pca)
+graph1
+
+graph2<-fviz_pca_ind(res.pca, col.ind = "cos2",gradient.cols= c("#00AFBB","#E7B800", "#FC4E07"),repel= TRUE)
+graph2
+
+```
+
+Plot of quality representation of cos2 is illustrated by the function below;
+```{r}
+fviz_cos2(res.pca, choice= "ind", axes =1:2)
+```
+
+Plot of contribution of individuals to first two dimensions
+```{r}
+fviz_contrib(res.pca, choice= "ind", axes =1:2)
+```
+
+Correlation matrix graph. The function below illustrates correlation matrix;
+```{r}
+#install.packages("corrplot")
+library("corrplot")
+
+corrplot(var$cos2, method= 'ellipse',is.corr=FALSE)
+
+corrplot(var$contrib,method= 'square', is.corr=FALSE)
+
+corrplot(var$coord,method= 'color', is.corr=FALSE)
+
+corrplot(var$cor,method= 'circle', is.corr=FALSE)
+
+```
+
+

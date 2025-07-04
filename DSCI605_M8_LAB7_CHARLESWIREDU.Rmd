@@ -1,0 +1,249 @@
+---
+title: "***TIME SERIES IN R- TASK1***"
+author: "**CHARLES WIREDU**"
+date: "**3/3/2022**"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+##CRIME DATA IN CHICAGO RELATED LAB ASSIGNMENT
+
+##Setting work directory
+setwd("~/Desktop/Data science Assignments")
+
+##Attaching the necessary library
+
+#install.packages("tidyr")
+
+#install.packages("tidyverse")
+
+#install.packages("lubridate")
+
+#install.packages("ggplot2")
+
+#install.packages("plotly")
+
+#install.packages("TSstudio")
+
+#install.packages("forecast")
+
+#install.packages("MLmetrics")
+
+#install.packages("dplyr")
+
+#install.packages("viridisLite")
+
+#install.packages("viridis")
+
+#install.packages("padr")
+
+#install.packages("rmdformats")
+
+#install.packages("recipes")
+
+library(recipes)
+library(tidyr)
+library(tidyverse)
+library(lubridate)
+library(ggplot2)
+library(plotly)
+library(TSstudio)
+library(forecast)
+library(MLmetrics)
+library(dplyr)
+library(viridisLite)
+library(viridis)
+library(padr)
+
+```
+
+
+LOADING DATASET
+```{r}
+library(readr)
+Fouryears_all <- read_csv("~/Downloads/Fouryears_all.csv")
+ View(Fouryears_all)
+ crime<- Fouryears_all
+ 
+ glimpse(crime)
+```
+
+DATA DESCRIPTION
+
+This data set reflects the four years of all the crimes recorded in Chicago from 2001 to present. The data has four columns and 958000 rows. 
+Below is a summary of the data set used for this lab work. 
+---
+
+```{r}
+summary(crime)
+```
+
+```{r}
+##subset dataset
+ ## data wrangling
+ crime %>%
+   select(Date, Primary.Type,Latitude ) %>%
+   mutate( ymd_hms(Date),
+          Primary.Type=as.factor(Primary.Type)) %>%
+   mutate(Date = floor_date(Date, unit = "hours")) %>%
+   arrange(Date) %>%
+   filter(Date > "2019-09-01" & Date< "2021-09-01") 
+ 
+```
+
+```{r}
+## cleaning the dataset
+ crime_clean <- crime %>%
+   select(Date, Primary.Type ) %>%
+   mutate(ymd_hms(Date),
+          Primary.Type= as.factor(Primary.Type))%>%
+   mutate(Date = floor_date(Date, unit= "hours")) %>%
+   arrange(Date)
+```
+
+```{r}
+## removing unwanted column
+ crime_clean$`ymd_hms(Date)` <- NULL
+## filtering two years dataset
+ new_date =crime_clean  %>%
+   select(Date, Primary.Type) %>%
+   filter(Date > "2019-09-01" & Date< "2021-09-01") 
+ 
+```
+
+```{r}
+## conducting data aggregation and plots
+ ##1
+ new_date %>%
+   group_by(Primary.Type) %>%
+   summarise(count = n()) %>%
+   arrange(count) %>%
+   ggplot(aes(x= count, y= reorder(Primary.Type, count))) +
+   geom_col(aes(fill= Primary.Type), show.legend = F) +
+   scale_fill_viridis(option = "D", discrete = T, direction= 1, begin= 0.9, end= 0.3) +
+   labs(title= "All crime in Chicago", x= "Number of Crime", y="crime") +
+   theme_gray()
+```
+
+
+ 
+```{r}
+
+##2 interactive plot
+ plot1 <-new_date %>%
+   group_by(Primary.Type) %>%
+   summarise(count = n()) %>%
+   arrange(count) %>%
+   head(10) %>%
+   ggplot(aes(x= count, y= reorder(Primary.Type, count),text= paste("new_date: ",Primary.Type,
+                                                                        "<br>", "Happened: ",
+                                                                        count, "times"))) +
+   geom_col(aes(fill= Primary.Type), show.legend = F) +
+   scale_fill_viridis(option = "D", discrete = T, direction= 1, begin= 0.9, end= 0.3) +
+   labs(title= "Top 10 crime in chicago", x= "Number of Crime", y="crime") +
+   theme_gray()
+ 
+```
+
+```{r}
+###summarise()  ungrouping output (overriding with groups arguments)
+##ggplotly(plot1,tooltip= "text")
+ 
+```
+
+```{r}
+ ##creating prediction time frame
+ crime_theft <- new_date %>%
+   filter(Primary.Type == 'THEFT') %>%
+   group_by(Date) %>%
+   summarise(Theft = n()) %>%
+   filter(Date > "2019-09-01" &  Date <"2021-09-01")
+
+  ##checking the last 10 of the dataset( begining and end of the dataframe)
+ tail(crime_theft,10)
+ 
+ crime_theft <- new_date %>%
+   filter(Primary.Type == 'THEFT') %>%
+   group_by(Date) %>%
+   summarise(Theft = n()) %>%
+   filter(Date > "2019-09-01" &  Date <"2021-09-01")%>%
+   slice(-c(1:4)) %>%
+   ungroup()
+ 
+ tail(crime_theft,20)
+ 
+
+ 
+ tail(crime_theft,5)
+ 
+```
+
+```{r}
+##after our time frame data is correct
+ ## we check for an missing values and interval in our data
+ 
+ anyNA(crime_theft)
+ 
+ ## we will split our train data into two type of data set names; train and test
+ 
+ theft_train <- head(crime_theft, nrow(crime_theft)- 365)
+ 
+ theft_test <- tail(crime_theft,  365)
+ 
+ ## creating a time series object
+ ##to creat a time series model, we need to create a time series object from our train data
+ 
+ theft_ts <- ts(theft_train$Theft, frequency= 24)
+ 
+```
+
+```{r}
+ #decompose 1
+ 
+ theft_ts_dec <-  theft_ts %>%
+   tail(365) %>%
+   decompose()
+ 
+ theft_ts_dec %>%
+   autoplot()
+```
+
+```{r}
+##create MSTS object (multi-seasonal Time Series) 
+ Theft_multi <- msts(theft_train$Theft, seasonal.periods= c(24, #daily
+                                                              24*7, # weeekly                                                              
+                                                              24*30))##monthly                                                        
+ ## Decompose MSTS object
+ Theft_multi_dec <- Theft_multi %>%
+   mstl()
+ view(Theft_multi_dec)
+```
+
+
+```{r}
+# 2019-2021
+ ##MSTS OBJECT()
+ ##par(mfrow=c(2,1))
+ theft_ts_dec %>%
+   autoplot()
+ 
+ ##Original time series  object
+ theft_ts_dec %>%
+   autoplot()
+ Theft_multi_dec %>%
+   tail(365) %>%
+   autoplot()
+ 
+```
+
+```{r}
+##Original time series  object
+ x11()
+ theft_ts_dec %>%
+   autoplot()
+```
+

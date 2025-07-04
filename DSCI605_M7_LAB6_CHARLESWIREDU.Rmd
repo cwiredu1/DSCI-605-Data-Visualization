@@ -1,0 +1,83 @@
+---
+title: "***MULTI-VIEW LAYOUT IN R***"
+author: "***CHARLES WIREDU***"
+date: "**2/22/2022**"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+INSTALLATION OF REQUIRED PACKAGES
+---
+The following packages have to be installed first before the lab coding start.
+
+```{r}
+setwd("~/Desktop/Data science Assignments")
+
+
+#install.packages("ggplot2")
+
+#install.packages("tidyverse")
+
+#install.packages("colorspace")
+#install.packages("gridExtra")
+#install.packages("egg")
+#install.packages("gtable")
+#install.packages("grid")
+#install.packages("lattice")
+library(ggplot2)
+library(tidyverse)
+library(colorspace)
+library(gridExtra)
+library(egg)
+library(gtable)
+library(grid)
+library(lattice)
+```
+LOADING  IRIS DATASET 
+---
+```{r}
+data(iris)
+
+names(iris)
+
+head(iris)
+```
+
+DESCRIPTION OF DATASET
+---
+The data used for lab work is known as iris dataset, which is built in R. The data set contains measurements on four different attributes
+for flowers from three different species. The species are namely; setosa, versicolor and virginica. The attributes measurement are in centimeters. The data set has five variables coupled with 150 observations.This dataset was chosen because of its quality which has no missing values and can be deem as normally distributed. The function below gives a summary of this data set
+```{r}
+summary(iris)
+```
+
+MULTI -VIEW PLOT WITH IRIS DATASET
+---
+The function below illustrate a multi-view plot on the iris data set.The plot is made of boxplot, histogram, scatterplot, dotplot and facetted plot.The multi-view plot helps to facilitate control over layout.The variables used in this plots include sepal.width, sepal.length, petal.width,petal.length and species.
+The functions below illustrate the multi-view plot;
+```{r}
+p1 <- qplot(Sepal.Length, Sepal.Width, data = iris, colour = Species)+
+  ggtitle("Scatter plot on sepal.length")
+
+p2 <- qplot(Sepal.Length, data = iris) + 
+  ggtitle("Histogram on Sepal.length")
+
+p3 <- qplot(Sepal.Length, data = iris, geom = "dotplot")+
+  ggtitle("Dotplot on sepal.length")
+
+p4<- ggplot(iris, aes(x=Petal.Length, y=Petal.Width, fill=Species)) + 
+  geom_boxplot()+ggtitle("Boxplot on Petal-Iris data ")
+
+p5 <- qplot(x = Sepal.Length,data = iris,binwidth = 0.2,fill = Species, xlab = "Sepal.Length (cm)")+
+  ggtitle("Sepal.length Histogram")
+
+p6 <-p1 + facet_wrap( ~ Species, nrow = 1) + theme(legend.position = "none") +
+  ggtitle("facetted plot")
+
+grid.arrange(p1,p2,p3,p4,p5,p6, nrow=3)
+
+```
+
+The plot above shows visualization of the iris data using different functions in R. The scatter plot shows the relationship between the two variables sepal.length and sepal.width. It can be observed that there is a positive relationship between sepal.length and sepal.width since most of the points on the scatter plot spread towards the right area of the plot.

@@ -1,0 +1,131 @@
+---
+title: "***MAP SPATIAL DATASETS IN R***"
+author: "**CHARLES WIREDU**"
+date: "**3/16/2022**"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+LOADING REQUIRED PACKAGES
+
+```{r}
+#install.packages("ggplot2")
+
+#install.packages("sf")
+
+#install.packages("raster")
+
+#install.packages("rgeos")
+
+#install.packages("cowplot")
+
+#install.packages("googleway")
+
+#install.packages("ggrepel")
+
+#install.packages("ggspatial")
+
+library(ggplot2)
+library(sf)
+library(raster)
+library(rgeos)
+library(cowplot)
+library(googleway)
+library(ggrepel)
+library(ggspatial)
+library(ggsn)
+```
+*LOADING DATASET AND VIEW DATA STRUCTURE*
+
+```{r}
+library(readr)
+HARV_PlotLocations <- read_csv("~/Downloads/HARV_PlotLocations.csv")
+View(HARV_PlotLocations)
+
+##View of Data Structure
+str(HARV_PlotLocations)
+
+```
+
+*DATA DESCRIPTION*
+
+The dataframe contains 21 locations(rows) and 16 variables(attributes). The dataframe also contains columns with coordinate values namely; easting and northing (UTM coordinates) which can be demonstrated below,
+
+
+*COLUMN NAMES*
+```{r}
+names(HARV_PlotLocations)
+
+
+```
+*IDENTIFYING COORDINATE VALUES*
+
+The data frame contains several fields that are deem to contain spatial information , which includes the coordinate values. Below is a view of the first six rows of the coordinate values from the data frame.
+```{r}
+head(HARV_PlotLocations$easting)
+
+
+head(HARV_PlotLocations$northing)
+```
+
+Also further exploration of the data frame suggest that there are column in the dataframe that provide information regarding Coordinate Reference System(CRS). The columns can be illustrated as follows;
+```{r}
+head(HARV_PlotLocations$geodeticDa)
+
+head(HARV_PlotLocations$utmZone)
+```
+
+*RASTER FILE DETAILS*
+
+With the use of the raster package in R , there is a possible conversion of the raster file to a data frame for visualization
+```{r}
+HARV_1 <- raster("/Users/carlkwamesarfo/Downloads/HARV_chmCrop.tif")
+
+HARV_1
+
+Summary(HARV_1)
+
+```
+
+*MAPPING POINTS AND RASTER IMAGE*
+```{r}
+#Call in point data, in this case a csv file with  coordinates
+HARV_PlotLocations <- (read.csv("~/Downloads/HARV_PlotLocations.csv"))
+
+#Make appropriate column headings
+df <- data.frame(cbind(easting= HARV_PlotLocations$easting, northing= HARV_PlotLocations$northing, elevation= HARV_PlotLocations$elevation))
+
+map <- raster("/Users/carlkwamesarfo/Downloads/HARV_chmCrop.tif")
+
+#Reading points and ploting using ggplot
+ggplot(df) +
+geom_point(aes(easting, northing, color=elevation), size=3) +
+coord_fixed(ratio= 1) +
+scale_color_gradient(low= "blue", high="orange") +
+theme_bw() +
+  ggtitle("Map of Plot Location/Elevations")
+```
+
+```{r}
+## Reading the raster image and converting to a data frame
+CHM_HARV <- raster("/Users/carlkwamesarfo/Downloads/HARV_chmCrop.tif")
+
+CHM_HARV_df <- as.data.frame(CHM_HARV, xy=TRUE)
+names(CHM_HARV_df)[1] <- 'Easting'
+names(CHM_HARV_df)[2] <- 'Northing'
+
+```
+
+```{r}
+#Over lay the two data frames
+ggplot(df)+
+  geom_raster(data = CHM_HARV_df,aes(x=Easting,y=Northing,fill=HARV_chmCrop))+
+  geom_point(aes(easting,northing,color=elevation),size=3)+
+  scale_fill_gradient2(low= "blue", high="dark blue")+ 
+  scale_color_gradient(low= "blue", high= "orange")+
+  ggtitle("MAP-Northeast Worcester Elevation/HARV_CHM")
+
+```
+

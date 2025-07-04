@@ -1,0 +1,106 @@
+---
+title: "***ASSIGNMENT_M4_LAB3_SCATTER PLOT***"
+author: "**CHARLES WIREDU**"
+date: "2/4/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+###Work Directory
+setwd("~/Desktop/Data science Assignments")
+###install.packages("ggplot2")
+library(ggplot2)
+
+```
+
+```{r}
+####load data set for scatter plot
+data("iris")
+names(iris)
+head(iris)
+```
+
+```{r}
+# Basic Plot of the ‘Iris’ data set  with title
+basicplot <- plot(iris$Petal.Length, iris$Petal.Width,main="Iris Data plot")
+basicplot
+
+```
+
+
+```{r}
+# Change the shape of the points and scaling  them down by 0.5
+## point type is chosen because they could more visioned by target audience and shows clear trend of the data
+plot(Petal.Width ~ Petal.Length, data=iris,main="Iris Data plot",
+     pch=17, cex=1.2)
+
+```
+
+```{r}
+# Change the color of symbols to blue
+plot(Petal.Width ~ Petal.Length, data=iris,main="Iris Data plot2",
+     pch=17, cex=1.2, col="dodgerblue1")
+```
+
+```{r}
+### scatter plot with title and axis lables added
+plot(Petal.Width ~ Petal.Length, data=iris,
+     pch=17,
+     col="green",
+     main = "Iris Flower Data Set Plot",
+     xlab = "Petal Length (cm)",
+     ylab = "Petal Width (cm)")
+
+```
+
+```{r}
+### Using ggplot to plot scatter plot
+
+IrisPlot <- ggplot(iris, aes(Sepal.Length, Petal.Length)) + geom_point() 
+IrisPlot
+
+##Adding colour and shape to our plot
+IrisPlot1 <- ggplot(iris, aes(Petal.Length, Sepal.Length)) + geom_point(colour = "dodgerblue1",shape = 17)
+IrisPlot1
+
+### adding themes
+## the chosen theme makes visualization easy to to vision on the chosen data set 
+ggplot(iris, aes(Petal.Length, Sepal.Length)) + geom_point(,shape = 8) + ggtitle("Iris Sepal/Petal Size Analysis")+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+         # theme_bw()+
+  theme(axis.line= element_line(colour="red"))
+
+### adding more features1
+ggplot(data = iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) + 
+  geom_point(aes(shape = Species), size = 3) + 
+  scale_shape_manual(values = c(16, 17, 18)) + 
+  ggtitle("Iris Sepal Size Analysis")+
+  scale_color_manual(values = c("purple",
+                                "dodgerblue1","orange"))
+
+
+### adding more features 2
+ggplot(data = iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) + 
+  geom_point(aes(shape = Species), size = 3) + ggtitle("Iris Sepal Size and Species Analysis")+
+  theme(plot.background= element_rect(fill= "white"),
+        panel.background= element_rect(fill= "lightgrey"),
+        legend.key= element_rect(fill= "lightgrey"),
+        legend.background=element_rect(colour="blue"),
+        panel.grid.minor= element_blank(),
+        axis.line=element_line(color="red"),
+        axis.text=element_text(colour="blue"))
+```
+
+
+```{r}
+###from the above scatter plot there has been changes make regarding the title, 
+###axis labels.Also there is changes been made on colors used with regard to the
+##pointers and background. This is however to make visualization appealing to 
+### the eyes and also to show clear trend of the relationship of the variables 
+###been plotted.
+```
+

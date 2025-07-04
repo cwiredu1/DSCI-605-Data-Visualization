@@ -1,0 +1,116 @@
+---
+title: "***TMAP IN R***"
+author: "**CHARLES WIREDU**"
+date: "**3/23/2022**"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+##Making Spatial Map
+##setting work directory
+setwd("~/Desktop/Data science Assignments")
+
+```
+
+```{r}
+##Loading of  require packages
+#install.packages("tmap")
+#install.packages("leaflet")
+#install.packages("sf")
+#install.packages("rgdal")
+#install.packages("raster")
+#install.packages("rgeos")
+#install.packages("ggplot2")
+#install.packages("htmlwidgets")
+#install.packages("grid")
+#install.packages("gifski")
+library(tmap)
+library(leaflet)
+library(sf)
+library(rgdal)
+library(raster)
+library(rgeos)
+library(ggplot2)
+library(htmlwidgets)
+library(grid)
+library(gifski)
+```
+
+```{r}
+##loading shape file 
+state<-st_read("/Users/carlkwamesarfo/Desktop/Data science Assignments")
+IN = state[state$STUSPS== "IN",]
+
+```
+
+```{r}
+##Loading watershed data
+watershed<-st_read("/Users/carlkwamesarfo/Desktop/Data science Assignments")
+
+summary(watershed)
+
+names(watershed)
+head(watershed)
+```
+
+```{r}
+# map objects creation
+map_watershed<-tm_shape(watershed) +
+  tm_polygons(col="REGION")
+map_watershed
+
+class(map_watershed)
+
+```
+
+```{r}
+## adding borders to plot
+mapWatershed <- tm_shape(state) +
+  tm_fill(col = "REGION") + tm_borders()
+
+mapWatershed
+```
+
+```{r}
+##Making animation of object
+mapZH <- tm_shape(IN) +
+  tm_borders()+tm_shape(watershed) +
+  tm_polygons()+
+  tm_facets(along = "REGION", free.coords = FALSE)
+tmap_animation(mapZH, filename = "IN_Watershed.gif", delay = 25)
+
+```
+
+```{r}
+tmap_EFH <-tmap_leaflet(mapZH, mode = "view", show = FALSE) %>% setView(1249033,2682288,zoom=12)%>% fitBounds(-72, 40, -70, 43)%>% clearBounds() 
+
+tmap_EFH
+saveWidget(tmap_EFH, file="tmap_EFH_anz.html")
+
+```
+
+SPATIAL MAP
+----
+```{r}
+map_watershed + 
+  tm_shape(watershed)+ 
+  tmap_EFH + 
+  tm_fill("red", alpha = 0.4)+ 
+  tm_scale_bar(breaks = c(0, 100, 200), text.size = 0.4)+ 
+  tm_layout(bg.color="lightblue", 
+            title = "Indiana Watershed", 
+            legend.width = 2, 
+            inner.margins=c(.20,.30, .36, .36), 
+            #earth.boundary = TRUE, 
+            space.color="grey90") + 
+  tm_legend(position = c("left", "top"), 
+            frame = FALSE, 
+            bg.color="lightblue") + 
+  tm_compass(position = c(.45, 0.65), color.light = "grey90", type = "4star") 
+
+```
+

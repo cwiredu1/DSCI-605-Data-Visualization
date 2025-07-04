@@ -1,0 +1,58 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['bar']});
+      google.charts.setOnLoadCallback(drawStuff);
+
+      function drawStuff() {
+        var data = google.visualization.arrayToDataTable([
+        ['State',               'Murder',  'Assault',   'Rape', 'UrbanPOp',   'Region'],
+        ['Alabama',            13.2,      236,         21.2,     58,        'South'],
+        ['Alaska',             10.0,      263,         44.5,     48,        'West'],
+        ['Arizona',            8.1,       294,         31.0,     80,        'West'],
+        ['Arkansas',           8.8,       190,         19.5,     50,        'South'],
+        ['Washington',         4.0,       145,         26.2,     73,        'West'],
+        ['West Virginia',      5.7,       81,          9.3,      39,        'South'],
+        ['Wisconsin',          2.6,       53,          10.8,     66,        'North Central'],
+        ['Wyoming',            6.8,       161,         15.6,     60,        'West'],
+        ['Tennessee',         13.5,       188,         26.9,     59,        'South'],
+        ['Pennsylvania',       6.3,       106,         14.9,     72,        'Northeast'],
+        ['Delaware',           5.9,       238,         15.8,     238,       'South'],
+        ['Florida',           15.4,       335,         31.9,     80,        'South'],
+        ['Georgia',           17.4,       211,         28.5,     60,        'South'],
+        ['Hawaii',            5.3,        46,          20.2,     83,        'West'],
+        ['Idaho',             2.6,        120,         14.2,     54,        'West'],
+        ['Illinois',          10.4,       249,         24.0,     83,        'North Central'],
+        ['Indiana',           7.2,        113,         21.0,     65,        'North Central'],
+        ['Maine',             2.1,        83,          7.8,      51,        'Northeast'],
+        ['Maryland',          11.3,       300,         27.8,     67,        'South'],
+        ['Nevada',            12.2,       252,         46.0,     81,        'West']
+      ]);
+
+        var options = {
+          width: 900,
+          height: 600,
+          chart: {
+            title: 'ARREST ACCROSS STATES IN THE UNITED STATES',
+            
+          },
+          bars: 'horizontal', // Required for Material Bar Charts.
+          
+          axes: {
+            x: {
+              
+              brightness: {side: 'top', label: 'apparent magnitude'} // Top x-axis.
+            }
+          }
+        };
+
+      var chart = new google.charts.Bar(document.getElementById('dual_x_div'));
+      chart.draw(data, options);
+    };
+    </script>
+  </head>
+  <body>
+    <div id="dual_x_div" style="width: 900px; height: 500px;"></div>
+  </body>
+</html>
